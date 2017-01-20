@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <title>Electric Vehicle National Charge Points</title>
+  <style>
+    #map {
+      height: 100%;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  <script type="text/javascript" src="json.json"></script>
+  <script>
+    var map;
+    var evCarRange = 10 * 1609.34;
+    var evCircleArray = [];
+    var evChargePoints = evData.ChargeDevice;
+
+    function initMap() {
+      // Create the map.
+      map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 6,
+      center: {lat: 55.0, lng: 0.1},
+      mapTypeId: 'terrain'
+    });
+
+    var index = 0;
+    for (var chargePoint in evChargePoints) {
+      // Add the circle for for this charge point to the map.
+      var evCircle = new google.maps.Circle({
+      strokeColor: '#0000FF',
+      strokeOpaci ty: 0.5,
+      strokeWeight  : 0.5,
+      fillColor: '#0000FF',
+      fillOpacity: 0.15,
+      map: map,
+      center: {lat: Number(evData.ChargeDevice[index].ChargeDeviceLocation.Latitude), lng: Number(evData.ChargeDevice[index].ChargeDeviceLocation.Longitude)},
+      radius: evCarRange
+      });
+      //add te circle to the array
+      evCircleArray.push(evCircle);
+      index = index+1;
+      }
+    }
+
+    function resizeCircles() {
+      //get the value of the range input
+      var newEvCarRange = Number(document.getElementById('rangeInput').value);
+      //convert the meters into miles
+      newEvCarRange = newEvCarRange * 1609.34;
+      var i;
+      for (i = 0; i < evCircleArray.length; i++) {
+        //set the radius size for the circle
+        evCircleArray[i].setRadius(newEvCarRange);
+      }
+    }
+  </script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDi75sVxwR-z-hPlZB5KgKQt5v3DYyX_m4&callback=initMap"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <!--UI range controller div-->
+    <div id="rangeController" style="background:#ffffff; padding:10px 20px 5px 20px; position:fixed; top:10px; right:10px; z-index:1000;">
+      <p>
+      <label for="rangeInput">Vehicle Range Remaining (miles):</label>
+      <input type="text" id="rangeInput" value="10" onkeyup="resizeCircles();">
+      <br /><small>(most people 'fill up' their vehicle once it is almost empty E.g. 1/8 of tank left. )</small>
+      </p>
+    </div>
+  </body>
+</html>
